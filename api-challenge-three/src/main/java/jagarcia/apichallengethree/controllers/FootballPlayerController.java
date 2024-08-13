@@ -1,94 +1,51 @@
 package jagarcia.apichallengethree.controllers;
 
-import jagarcia.apichallengethree.dtos.errorsDTO.FootballPlayerErrorDTO;
+
+import jagarcia.apichallengethree.dtos.FootballPlayerDTO;
 import jagarcia.apichallengethree.models.FootballPlayer;
 import jagarcia.apichallengethree.services.FootballPlayerService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@AllArgsConstructor
 @RequestMapping("api/v1/footballplayers")
 public class FootballPlayerController {
-    @Autowired
     private FootballPlayerService footballPlayerService;
 
-    @PostMapping()
-    public ResponseEntity<?> saveFootballPlayer(@RequestBody FootballPlayer footballPlayerData) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(this.footballPlayerService.addFootballPlayer(footballPlayerData));
+    @PostMapping
+    public ResponseEntity<FootballPlayerDTO> createFootballPlayer(@RequestBody FootballPlayerDTO footballPlayerDTO) {
+        FootballPlayerDTO savedFootballPlayer = footballPlayerService.createFootballPlayer(footballPlayerDTO);
+        return new ResponseEntity<>(savedFootballPlayer, HttpStatus.CREATED);
+    }
 
-        } catch (Exception exception) {
-            FootballPlayerErrorDTO errorDTO = new FootballPlayerErrorDTO();
-            errorDTO.setErrorMessage(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(errorDTO.getErrorMessage());
-        }
-
+    @GetMapping("{id}")
+    public ResponseEntity<FootballPlayerDTO> getFootballPlayerById(@PathVariable("id") Integer id) {
+        FootballPlayerDTO footballPlayerDTO = footballPlayerService.getFootballPlayerById(id);
+        return new ResponseEntity<>(footballPlayerDTO, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllFootballPlayers() {
-        try{
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(this.footballPlayerService.getAllFootballPlayers());
-        } catch( Exception error){
-
-            FootballPlayerErrorDTO errorDTO = new FootballPlayerErrorDTO();
-            errorDTO.setErrorMessage(error.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(errorDTO.getErrorMessage());
-        }
+    public ResponseEntity<List<FootballPlayerDTO>> getAllFootballPlayers() {
+        List<FootballPlayerDTO> footballPlayerDTOS = footballPlayerService.getAllFootballPlayers();
+        return new ResponseEntity<>(footballPlayerDTOS, HttpStatus.OK);
+    }
+    @PutMapping("{id}")
+    public ResponseEntity<FootballPlayerDTO> updateFootballPlayer(@PathVariable("id") Integer id,
+                                                                  @RequestBody FootballPlayerDTO footballPlayerDTO) {
+        footballPlayerDTO.setId(id);
+        FootballPlayerDTO updatedFootballPlayer = footballPlayerService.updateFootballPlayer(footballPlayerDTO);
+        return new ResponseEntity<>(updatedFootballPlayer, HttpStatus.OK);
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteFootballPlayer(@PathVariable("id") Integer id) {
+        footballPlayerService.deleteFootballPlayer(id);
+        return new ResponseEntity<>("FootballPlayer successfully deleted!", HttpStatus.OK);
     }
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getFootballPlayerById(@PathVariable Integer id) {
-        try{
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(this.footballPlayerService.getFootballPlayerById(id));
-        }catch( Exception error){
-
-            FootballPlayerErrorDTO errorDTO = new FootballPlayerErrorDTO();
-            errorDTO.setErrorMessage(error.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(errorDTO.getErrorMessage());
-        }
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateFootballPlayer (@RequestBody FootballPlayer footballPlayerData, @PathVariable Integer id) {
-        try{
-            return ResponseEntity
-                    .status(HttpStatus.ACCEPTED)
-                    .body(this.footballPlayerService.updateFootballPlayer(id, footballPlayerData));
-        }catch( Exception error){
-
-            FootballPlayerErrorDTO errorDTO = new FootballPlayerErrorDTO();
-            errorDTO.setErrorMessage(error.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(errorDTO.getErrorMessage());
-        }
-    }
-
-    //eliminar futbolista
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFootballPlayer(@PathVariable Integer id) {
-        try {
-            footballPlayerService.deleteFootballPlayer(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-        }
-    }
 }

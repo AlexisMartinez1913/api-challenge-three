@@ -1,5 +1,10 @@
 package jagarcia.apichallengethree.dtos;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+
+@AllArgsConstructor
 public class FootballPlayerDTO {
 
     private Integer id;
